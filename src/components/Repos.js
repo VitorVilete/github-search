@@ -48,7 +48,7 @@ class Repos extends Component {
       super(props);
       this.state = {
           repos:[],
-          user: this.props.user ? this.props.user : 'reactjs'
+          user: this.props.user        
       }
   }
   componentDidMount(){
@@ -56,9 +56,12 @@ class Repos extends Component {
           .then(res => res.json())
           .then(data => this.setState({repos:data}));
   }
+
   render() {
-    if(this.state.repos){
-      const repoItems = this.state.repos.map(repo => (      
+    const { repos, user } = this.state;
+
+    if(repos){ 
+      const repoItems = repos.map(repo => (      
         <li key={repo.id}>
           <h3>{repo.name}</h3>
           <p>Star Count: {repo.stargazers_count} <span role="img" aria-label="star">⭐</span></p>
@@ -77,7 +80,7 @@ class Repos extends Component {
       ))
       return (
         <Repo className="container">
-          <h1>Repos from {this.state.user}</h1>
+          <h1>Repos from {user}</h1>
             <ul>
                 {repoItems}
             </ul>        
@@ -87,11 +90,15 @@ class Repos extends Component {
     else{
       return (
       <Repo className="container">
-          <h1>No repos found for the user {this.state.user} :(</h1>
+          <h1>No repos found for the user {user} <span role="img" aria-label="sad">😟</span></h1>
       </Repo>
       )
     }
   }
+}
+
+Repos.defaultProps = {
+  user:'reactjs'
 }
 
 export default Repos;

@@ -35,24 +35,25 @@ class Commits extends Component {
   constructor(props){
     super(props);
     this.state = {
-      commits:[]
+      commits:[],
+      search: "",
+      repoName: this.props.location.state.repoName
     }    
   }
   
   
   getCommits = () =>{
-      this.setState({isLoading: true}, () =>{
-        fetch(`https://api.github.com/repos/reactjs/${this.props.location.state.repoName}/commits?per_page=20`)        
+    const { repoName } = this.state;
+        fetch(`https://api.github.com/repos/reactjs/${repoName}/commits?per_page=20`)        
             .then(res => res.json())
             .then((res) => {
               const nextCommits = res.map(commit =>({
                   sha: commit.sha,
                   name: commit.commit.author.name,
                   email: commit.commit.author.email,
-                  date: commit.commit.author.date,
+                  date: new Date(commit.commit.author.date),
                   message: commit.commit.message
               }));
-
               this.setState({
                 commits:[
                   ...this.state.commits,
@@ -65,32 +66,64 @@ class Commits extends Component {
                 error: err.message
               });
             })
-      })
-    }
+            
+          }
     
     
   componentDidMount(){
     this.getCommits()
   }
 
-  render() {
-    const commitItems = this.state.commits.map(commit => (      
-        <li key={commit.sha}>
-          <h3>{commit.name}</h3>
-          <p>{commit.email}</p>
-          <p>{commit.date}</p>
-          <p>{commit.message}</p>
-        </li>
-      ))
-    return (
-    <Commit className="container">
-      <h1>Commits from {this.props.location.state.repoName}</h1>
-        <ul>
-            {commitItems}
-        </ul>        
-    </Commit>
+  
+  handleChange = event => {
+    this.setState({search: event.target.value});
+  }
 
+  render() {
+    const { commits, search, repoName } = this.state;
+    const filteredCommits = commits.filter(commit => {
+
+      if(commit.name.toLowerCase().indexOf(search.toLowerCase()) !== -1) return true;
+      if(commit.email.toLowerCase().indexOf(search.toLowerCase()) !== -1) return true;
+      if(commit.message.toLowerCase().indexOf(search.toLowerCase()) !== -1) return true;
+
+      return false;
+    });
+
+    if(filteredCommits){
+      const commitItems = filteredCommits.map(commit => (      
+          <li key={commit.sha}>
+            <h3>Author Name:{commit.name}</h3>
+            <p>Author Email: {commit.email}</p>
+            <p>Commit Date: {commit.date.toLocaleString()}</p>
+            <p>Commit Message: {commit.message}</p>
+          </li>
+        ))
+      return (
+      <Commit className="container">
+        <h1>Commits from {repoName}</h1>
+
+        <label>Search</label>
+        <input
+                  label="Search Commits"
+                  icon="search"
+                  name="searchname"
+                  onChange={this.handleChange}
+                />
+          <ul>
+              {commitItems}
+          </ul>        
+      </Commit>
+  
+      )
+    }
+    else{
+    return(
+    <Commit className="container">
+       <h1>No commits found for the repository { repoName } <span role="img" aria-label="sad">😟</span></h1>
+    </Commit>
     )
+  }
   }
 }
 
