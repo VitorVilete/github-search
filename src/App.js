@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 
 import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import styled from 'styled-components';
@@ -9,8 +9,7 @@ import Home from './components/Home'
 import Repo from './components/Repos'
 import Commits from './components/Commits'
 
-
-const Div = styled.div`
+const Div = styled.div `
   margin: auto;
   a{
     color: white;
@@ -31,21 +30,21 @@ const Div = styled.div`
 
 class App extends Component {
 
-  render() {
-    return (
-      <BrowserRouter>
-      <Div>
-        <Navigation />
-        <Switch>
-          <Route path="/" component={Home} exact/>
-          <Route path="/repos" component={Repo} exact/>      
-          <Route path="/repos/:repo/commits" component={Commits}/>
-          <Route component={Error}/>
-        </Switch>
-      </Div>
-      </BrowserRouter>
-    );
-  }
+    render() {
+        return (
+            <BrowserRouter>
+                <Div>
+                    <Navigation/>
+                    <Switch>
+                        <Route path="/" component={Home} exact/>
+                        <Route path="/repos" component={Repo} exact/>
+                        <Route path="/repos/:repo/commits" component={Commits}/>
+                        <Route component={Error}/>
+                    </Switch>
+                </Div>
+            </BrowserRouter>
+        );
+    }
 }
 
 export default App;
