@@ -4,7 +4,7 @@ import Repos from './Repos';
 class Home extends Component {
   render() {
     return (
-      <Repos user='vitorvilete'/>
+      <Repos/>
     )
   }
 }

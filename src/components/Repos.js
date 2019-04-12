@@ -1,5 +1,46 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+
+
+const Repo = styled.div`
+div {
+  width:100%;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;padding: 0;
+
+  li {
+      background: rgb(238, 238, 238);
+      padding: 2em;
+      border-radius: 4px;
+      margin-bottom: 7px;
+
+      p {          
+          margin-left: 20px;
+      }
+
+      img {
+          border-radius: 50%;
+          width: 100%;
+      }
+
+
+  }
+}
+`;
+
+const RepoButton = styled.span`
+background:#7700FF;
+color: "white";
+font-size: 1em;
+margin: 1em;
+padding: 0.25em 1em;
+border: 2px solid #7700FF;
+border-radius: 3px;
+`
 
 class Repos extends Component {
 
@@ -16,26 +57,40 @@ class Repos extends Component {
           .then(data => this.setState({repos:data}));
   }
   render() {
-    const repoItems = this.state.repos.map(repo => (      
-      <div key={repo.id}>
-        <h3>{repo.full_name}</h3>
-        <p><a href={repo.url}>Repo link</a></p>
-        <p><Link to={{ 
-              pathname: `/repos/${repo.name}/commits`,
-              state:{
-                repoName: repo.name
-              }
-        }}> Commits</Link></p>
-        <p>{repo.language}</p>
-        <p>{repo.description}</p>
-      </div>
-    ))
-    return (
-      <div>
-        <h1>Repos from {this.state.user}</h1>
-        {repoItems}
-      </div>
-    )
+    if(this.state.repos){
+      const repoItems = this.state.repos.map(repo => (      
+        <li key={repo.id}>
+          <h3>{repo.name}</h3>
+          <p>Star Count: {repo.stargazers_count} <span role="img" aria-label="star">⭐</span></p>
+          <p>Repository Link: <a className='emoji' href={repo.url}> <span role="img" aria-label="link">🔗</span></a></p>
+          <Link to={{ 
+                pathname: `/repos/${repo.name}/commits`,
+                state:{
+                  repoName: repo.name
+                }
+          }}><RepoButton> Commits </RepoButton></Link>
+          <p><strong>Language:</strong> {repo.language}</p>
+        {repo.description &&
+        <p><strong>Description:</strong> {repo.description}</p>
+        }
+        </li>
+      ))
+      return (
+        <Repo className="container">
+          <h1>Repos from {this.state.user}</h1>
+            <ul>
+                {repoItems}
+            </ul>        
+        </Repo>
+      )
+    }
+    else{
+      return (
+      <Repo className="container">
+          <h1>No repos found for the user {this.state.user} :(</h1>
+      </Repo>
+      )
+    }
   }
 }
 
