@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import {Link} from 'react-router-dom';
 import styled from 'styled-components';
+import Loader from './Loader';
 
 const Repo = styled.div `
 div {
@@ -47,7 +48,8 @@ class Repos extends Component {
         super(props);
         this.state = {
             repos: [],
-            user: this.props.user
+            user: this.props.user,
+            isLoading: false
         }
     }
     componentDidMount() {
@@ -57,58 +59,71 @@ class Repos extends Component {
     }
 
     render() {
-        const {repos, user} = this.state;
+        const {repos, user, isLoading} = this.state;
 
-        if (repos) {
-            const repoItems = repos.map(repo => (
-                <li key={repo.id}>
-                    <h3>{repo.name}</h3>
-                    <p>Star Count: {repo.stargazers_count}
-                        <span role="img" aria-label="star">⭐</span>
-                    </p>
-                    <p>Repository Link:
-                        <a className='emoji' href={repo.url}>
-                            <span role="img" aria-label="link">🔗</span>
-                        </a>
-                    </p>
-                    <Link
-                        to={{
-                        pathname: `/repos/${repo.name}/commits`,
-                        state: {
-                            repoName: repo.name
-                        }
-                    }}>
-                        <RepoButton>
-                            Commits
-                        </RepoButton>
-                    </Link>
-                    <p>
-                        <strong>Language:</strong>
-                        {repo.language}</p>
-                    {repo.description && <p>
-                        <strong>Description:</strong>
-                        {repo.description}
-                    </p>
-}
-                </li>
-            ))
-            return (
-                <Repo className="container">
-                    <h1>Repos from {user}</h1>
-                    <ul>
-                        {repoItems}
-                    </ul>
-                </Repo>
-            )
+        let result;
+
+        if (isLoading) {
+            result = <Loader></Loader>;
         } else {
-            return (
-                <Repo className="container">
-                    <h1>No repos found for the user {user}
-                        <span role="img" aria-label="sad">😟</span>
-                    </h1>
-                </Repo>
-            )
+            if (repos) {
+                const repoItems = repos.map(repo => (
+                    <li key={repo.id}>
+                        <h3>{repo.name}</h3>
+                        <p>Star Count: {repo.stargazers_count}
+                            <span role="img" aria-label="star">⭐</span>
+                        </p>
+                        <p>Repository Link:
+                            <a className='emoji' href={repo.url}>
+                                <span role="img" aria-label="link">🔗</span>
+                            </a>
+                        </p>
+                        <Link
+                            to={{
+                            pathname: `/repos/${repo.name}/commits`,
+                            state: {
+                                repoName: repo.name
+                            }
+                        }}>
+                            <RepoButton>
+                                Commits
+                            </RepoButton>
+                        </Link>
+                        <p>
+                            <strong>Language:</strong>
+                            {repo.language}</p>
+                        {repo.description && <p>
+                            <strong>Description:</strong>
+                            {repo.description}
+                        </p>
+}
+                    </li>
+                ))
+
+                result = <React.Fragment>
+                    <Repo className="container">
+                        <h1>Repos from {user}</h1>
+                        <ul>
+                            {repoItems}
+                        </ul>
+                    </Repo>
+                </React.Fragment>
+            } else {
+                result = <React.Fragment>
+                    <Repo className="container">
+                        <h1>No repos found for the user {user}
+                            <span role="img" aria-label="sad">😟</span>
+                        </h1>
+                    </Repo>
+                </React.Fragment>
+            }
+
         }
+        return (
+            <React.Fragment>
+                {result}
+            </React.Fragment>
+        )
     }
 }
 

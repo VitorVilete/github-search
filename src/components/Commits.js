@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
-import styled from 'styled-components';
+import styled from 'styled-components'
+import Loader from './Loader'
 
 const Commit = styled.div `
 div {
@@ -36,32 +37,38 @@ class Commits extends Component {
         this.state = {
             commits: [],
             search: "",
-            repoName: this.props.location.state.repoName
+            repoName: this.props.location.state.repoName,
+            isLoading: false
         }
     }
 
     getCommits = () => {
         const {repoName} = this.state;
-        fetch(`https://api.github.com/repos/reactjs/${repoName}/commits?per_page=20`)
-            .then(res => res.json())
-            .then((res) => {
-                const nextCommits = res.map(commit => ({
-                    sha: commit.sha,
-                    name: commit.commit.author.name,
-                    email: commit.commit.author.email,
-                    date: new Date(commit.commit.author.date),
-                    message: commit.commit.message
-                }));
-                this.setState({
-                    commits: [
-                        ...this.state.commits,
-                        ...nextCommits
-                    ]
+        this.setState({
+            isLoading: true
+        }, () => {
+            fetch(`https://api.github.com/repos/reactjs/${repoName}/commits?per_page=20`)
+                .then(res => res.json())
+                .then((res) => {
+                    const nextCommits = res.map(commit => ({
+                        sha: commit.sha,
+                        name: commit.commit.author.name,
+                        email: commit.commit.author.email,
+                        date: new Date(commit.commit.author.date),
+                        message: commit.commit.message
+                    }));
+                    this.setState({
+                        commits: [
+                            ...this.state.commits,
+                            ...nextCommits
+                        ],
+                        isLoading: false
+                    })
                 })
-            })
-            .catch((err) => {
-                this.setState({error: err.message});
-            })
+                .catch((err) => {
+                    this.setState({error: err.message});
+                })
+        })
 
     }
 
@@ -74,7 +81,7 @@ class Commits extends Component {
     }
 
     render() {
-        const {commits, search, repoName} = this.state;
+        const {commits, search, repoName, isLoading} = this.state;
         const filteredCommits = commits.filter(commit => {
 
             if (commit.name.toLowerCase().indexOf(search.toLowerCase()) !== -1) 
@@ -87,21 +94,24 @@ class Commits extends Component {
             return false;
         });
 
-        if (filteredCommits) {
-            const commitItems = filteredCommits.map(commit => (
-                <li key={commit.sha}>
-                    <h3>Author Name:{commit.name}</h3>
-                    <p>Author Email: {commit.email}</p>
-                    <p>Commit Date: {commit
-                            .date
-                            .toLocaleString()}</p>
-                    <p>Commit Message: {commit.message}</p>
-                </li>
-            ))
-            return (
-                <Commit className="container">
-                    <h1>Commits from {repoName}</h1>
+        let result;
 
+        if (isLoading) {
+            result = <Loader></Loader>
+        } else {
+            if (filteredCommits) {
+                const commitItems = filteredCommits.map(commit => (
+                    <li key={commit.sha}>
+                        <h3>Author Name: {commit.name}</h3>
+                        <p>Author Email: {commit.email}</p>
+                        <p>Commit Date: {commit
+                                .date
+                                .toLocaleString()}</p>
+                        <p>Commit Message: {commit.message}</p>
+                    </li>
+                ))
+                result = <React.Fragment>
+                    <h1>Commits from {repoName}</h1>
                     <label>Search</label>
                     <input
                         label="Search Commits"
@@ -111,18 +121,26 @@ class Commits extends Component {
                     <ul>
                         {commitItems}
                     </ul>
-                </Commit>
+                </React.Fragment>
 
-            )
-        } else {
-            return (
-                <Commit className="container">
+            } else {
+                result = <React.Fragment>
                     <h1>No commits found for the repository {repoName}
                         <span role="img" aria-label="sad">😟</span>
                     </h1>
-                </Commit>
-            )
+                </React.Fragment>
+            }
         }
+
+        return (
+            <React.Fragment>
+                <Commit className="container">
+                    {result}
+                </Commit>
+            </React.Fragment>
+
+        )
+
     }
 }
 
