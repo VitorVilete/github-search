@@ -39,8 +39,10 @@ class Commits extends Component {
             repo: getRepo(),
             user: getUser(),
             limit: 20,
+            page:1,
             isLoading: false
         }
+        this.handleOnScroll = this.handleOnScroll.bind(this);
 
         function getUser() {
             return props.user
@@ -54,12 +56,15 @@ class Commits extends Component {
         }
     }
 
-    getCommits = () => {
-        const {repo, user, limit} = this.state;
+    getCommits() {
+        if (this.state.isLoading) {
+            return;
+        }
+        const {repo, user, limit, page} = this.state;
         this.setState({
             isLoading: true
         }, () => {
-            fetch(`https://api.github.com/repos/${user}/${repo}/commits?per_page=${limit}`)
+            fetch(`https://api.github.com/repos/${user}/${repo}/commits?per_page=${limit}&page=${page}`)
                 .then(res => res.json())
                 .then((res) => {
                     const nextCommits = res.map(commit => ({
@@ -74,7 +79,8 @@ class Commits extends Component {
                             ...this.state.commits,
                             ...nextCommits
                         ],
-                        isLoading: false
+                        isLoading: false,
+                        page: page + 1
                     })
                 })
                 .catch((err) => {
@@ -86,6 +92,22 @@ class Commits extends Component {
 
     componentDidMount() {
         this.getCommits()
+        window.addEventListener('scroll', this.handleOnScroll);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('scroll', this.handleOnScroll);
+    }
+
+    handleOnScroll() {
+        var scrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+        var scrollHeight = (document.documentElement && document.documentElement.scrollHeight) || document.body.scrollHeight;
+        var clientHeight = document.documentElement.clientHeight || window.innerHeight;
+        var scrolledToBottom = Math.ceil(scrollTop + clientHeight) >= scrollHeight;
+
+        if (scrolledToBottom && !this.state.search) {
+           this.getCommits()
+        }
     }
 
     handleChange = event => {
@@ -108,7 +130,7 @@ class Commits extends Component {
 
         let result;
 
-        if (isLoading) {
+        if (isLoading && commits.length === 0) {
             result = <Loader></Loader>
         } else {
             if (commits.length > 0) {
