@@ -1,19 +1,40 @@
 import React from 'react';
 
-import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
-import { linkTo } from '@storybook/addon-links';
+import {storiesOf} from '@storybook/react';
 
-import { Button, Welcome } from '@storybook/react/demo';
+import { BrowserRouter } from 'react-router-dom';
 
-storiesOf('Welcome', module).add('to Storybook', () => <Welcome showApp={linkTo('Button')} />);
+import Commits from '../components/Commits'
+import Error from '../components/Error'
+import Loader from '../components/Loader'
+import Repos from '../components/Repos'
 
-storiesOf('Button', module)
-  .add('with text', () => <Button onClick={action('clicked')}>Hello Button</Button>)
-  .add('with some emoji', () => (
-    <Button onClick={action('clicked')}>
-      <span role="img" aria-label="so cool">
-        😀 😎 👍 💯
-      </span>
-    </Button>
-  ));
+storiesOf('Welcome', module).add('to Github Search!', () => 
+<p>
+    This is the Storybook for the Github Search application!
+</p>);
+
+storiesOf('Repos', module)
+    .add('Get repositories from reactjs', () => (
+        <BrowserRouter>
+            <Repos user="reactjs"/>
+        </BrowserRouter>
+));
+
+storiesOf('Commits', module)
+    .add('Gets last 20 commits from the react-transition-group repository', () => (
+    <Commits user="reactjs" repo="react-transition-group" limit="20"/>          
+));
+
+storiesOf('Error component', module)
+    .add('Error message for Path is not Found', () => (
+    <Error message="Path not found"/>
+))
+    .add('Error message for no commits found for the repository', () => (
+    <Error message="No commits found for the repository"/>
+));
+
+
+storiesOf('Loader', module).add('Loader component', () => (
+    <Loader/>
+));
