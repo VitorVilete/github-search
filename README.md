@@ -7,13 +7,13 @@ This is a React application that search repository and commit data from Github A
 # ES6+ features used in this project
 
 ## Destructuring Assignment
-    The destructuring assignment is a nice and organized way to get only the things you need from an array or object. There are examples of Destructuring Assignment on this project that can be seen on the Commits and Repos components. It is used to get multiple variables from the state in a single line.
+The destructuring assignment is a nice and organized way to get only the things you need from an array or object. There are examples of Destructuring Assignment on this project that can be seen on the Commits and Repos components. It is used to get multiple variables from the state in a single line.
 
 ## Template Literals
-    Template literals makes it easy and clean to pass you data to a string without having to concatenate. Plus, you can write a multi-line string, since it understands new-line characters inside the template string. Examples of this can be found on the Commits, Repos, Loader and Navigation components. All the styled components in this application were made with template literals.
+Template literals makes it easy and clean to pass you data to a string without having to concatenate. Plus, you can write a multi-line string, since it understands new-line characters inside the template string. Examples of this can be found on the Commits, Repos, Loader and Navigation components. All the styled components in this application were made with template literals.
 
 ## Spread Operator
-    Also known as Spread Syntax, the Spread Operator can be very useful, specially when dealing with arrays. You can find an example of it working on the Commits component, where it sets the commits with the new commits using a Spread Syntax.
+Also known as Spread Syntax, the Spread Operator can be very useful, specially when dealing with arrays. You can find an example of it working on the Commits component, where it sets the commits with the new commits using a Spread Syntax.
 
 ## Available Scripts
 
