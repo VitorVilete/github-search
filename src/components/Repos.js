@@ -87,7 +87,6 @@ class Repos extends Component {
         });
     }    
         compareValues(key, order='asc') {
-            console.log(key);
             return function(a, b) {
               if(!a.hasOwnProperty(key) || 
                  !b.hasOwnProperty(key)) {
@@ -116,7 +115,6 @@ class Repos extends Component {
     handleChange = event => {        
         if(this.state.repos){
             this.setState({orderKey: event.target.value}, () => {
-                console.log(`chamando evento change com os argumentos orderBy: ${this.state.orderKey} , repos: ${this.state.repos}`)
                 this.state.repos.sort(this.compareValues(this.state.orderKey))    
             })
         }
