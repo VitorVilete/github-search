@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import styled from 'styled-components'
 import Loader from './Loader'
+import Error from './Error'
 
 const Commit = styled.div `
 div {
@@ -25,8 +26,6 @@ ul {
           border-radius: 50%;
           width: 100%;
       }
-
-
   }
 }
 `;
@@ -37,17 +36,30 @@ class Commits extends Component {
         this.state = {
             commits: [],
             search: "",
-            repoName: this.props.location.state.repoName,
+            repo: getRepo(),
+            user: getUser(),
+            limit: 20,
             isLoading: false
+        }
+
+        function getUser() {
+            return props.user
+                ? props.user
+                : props.match.params.user;
+        }
+        function getRepo() {
+            return props.repo
+                ? props.repo
+                : props.match.params.repo;
         }
     }
 
     getCommits = () => {
-        const {repoName} = this.state;
+        const {repo, user, limit} = this.state;
         this.setState({
             isLoading: true
         }, () => {
-            fetch(`https://api.github.com/repos/reactjs/${repoName}/commits?per_page=20`)
+            fetch(`https://api.github.com/repos/${user}/${repo}/commits?per_page=${limit}`)
                 .then(res => res.json())
                 .then((res) => {
                     const nextCommits = res.map(commit => ({
@@ -66,7 +78,7 @@ class Commits extends Component {
                     })
                 })
                 .catch((err) => {
-                    this.setState({error: err.message});
+                    this.setState({error: err.message, isLoading: false});
                 })
         })
 
@@ -81,7 +93,7 @@ class Commits extends Component {
     }
 
     render() {
-        const {commits, search, repoName, isLoading} = this.state;
+        const {commits, search, repo, isLoading, error} = this.state;
         const filteredCommits = commits.filter(commit => {
 
             if (commit.name.toLowerCase().indexOf(search.toLowerCase()) !== -1) 
@@ -99,7 +111,7 @@ class Commits extends Component {
         if (isLoading) {
             result = <Loader></Loader>
         } else {
-            if (filteredCommits) {
+            if (commits.length > 0) {
                 const commitItems = filteredCommits.map(commit => (
                     <li key={commit.sha}>
                         <h3>Author Name: {commit.name}</h3>
@@ -111,7 +123,7 @@ class Commits extends Component {
                     </li>
                 ))
                 result = <React.Fragment>
-                    <h1>Commits from {repoName}</h1>
+                    <h1>Commits from {repo}</h1>
                     <label>Search</label>
                     <input
                         label="Search Commits"
@@ -124,10 +136,16 @@ class Commits extends Component {
                 </React.Fragment>
 
             } else {
+                let errorMessage = `No commits found for the repository ${repo}`
                 result = <React.Fragment>
-                    <h1>No commits found for the repository {repoName}
-                        <span role="img" aria-label="sad">😟</span>
-                    </h1>
+                    <Error message={errorMessage}/>
+                </React.Fragment>
+            }
+
+            if (error) {
+                let errorMessage = `Error while trying to fetch the commits: ${error}`
+                result = <React.Fragment>
+                    <Error message={errorMessage}/>
                 </React.Fragment>
             }
         }

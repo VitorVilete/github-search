@@ -1,11 +1,17 @@
 import React, {Component} from 'react'
-import {Link} from 'react-router-dom';
-import styled from 'styled-components';
-import Loader from './Loader';
+import {Link} from 'react-router-dom'
+import styled from 'styled-components'
+import Loader from './Loader'
+import Error from './Error'
 
 const Repo = styled.div `
 div {
   width:100%;
+}
+
+a {
+    color:white;
+    text-decoration: none;
 }
 
 ul {
@@ -34,7 +40,6 @@ ul {
 
 const RepoButton = styled.span `
 background:#7700FF;
-color: "white";
 font-size: 1em;
 margin: 1em;
 padding: 0.25em 1em;
@@ -48,25 +53,42 @@ class Repos extends Component {
         super(props);
         this.state = {
             repos: [],
-            user: this.props.user,
+            user: getUser(),
             isLoading: false
+        }
+
+        function getUser() {
+            return props.user
+                ? props.user
+                : props.match.params.user;
         }
     }
     componentDidMount() {
-        fetch(`https://api.github.com/users/${this.state.user}/repos`)
-            .then(res => res.json())
-            .then(data => this.setState({repos: data}));
+        this.getRepos(this.state.user);
+    }
+
+    getRepos(user) {
+        this.setState({
+            isLoading: true
+        }, () => {
+            fetch(`https://api.github.com/users/${user}/repos`)
+                .then(res => res.json())
+                .then(data => this.setState({repos: data, isLoading: false}))
+                .catch((err) => {
+                    this.setState({error: err.message, isLoading: false});
+                });
+        });
     }
 
     render() {
-        const {repos, user, isLoading} = this.state;
+        const {repos, user, isLoading, error} = this.state;
 
         let result;
 
         if (isLoading) {
             result = <Loader></Loader>;
         } else {
-            if (repos) {
+            if (repos.length > 0) {
                 const repoItems = repos.map(repo => (
                     <li key={repo.id}>
                         <h3>{repo.name}</h3>
@@ -80,7 +102,7 @@ class Repos extends Component {
                         </p>
                         <Link
                             to={{
-                            pathname: `/repos/${repo.name}/commits`,
+                            pathname: `/${user}/repos/${repo.name}/commits`,
                             state: {
                                 repoName: repo.name
                             }
@@ -101,34 +123,33 @@ class Repos extends Component {
                 ))
 
                 result = <React.Fragment>
-                    <Repo className="container">
-                        <h1>Repos from {user}</h1>
-                        <ul>
-                            {repoItems}
-                        </ul>
-                    </Repo>
+                    <h1>Repositories from {user}</h1>
+                    <ul>
+                        {repoItems}
+                    </ul>
                 </React.Fragment>
             } else {
+                let errorMessage = `No repositories found for the user ${user}`
                 result = <React.Fragment>
-                    <Repo className="container">
-                        <h1>No repos found for the user {user}
-                            <span role="img" aria-label="sad">😟</span>
-                        </h1>
-                    </Repo>
+                    <Error message={errorMessage}/>
+                </React.Fragment>
+            }
+            if (error) {
+                let errorMessage = `Error while trying to fetch the repositories: ${error}`
+                result = <React.Fragment>
+                    <Error message={errorMessage}/>
                 </React.Fragment>
             }
 
         }
         return (
             <React.Fragment>
-                {result}
+                <Repo className="container">
+                    {result}
+                </Repo>
             </React.Fragment>
         )
     }
-}
-
-Repos.defaultProps = {
-    user: 'reactjs'
 }
 
 export default Repos;

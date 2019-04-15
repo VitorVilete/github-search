@@ -1,12 +1,12 @@
-import React, {Component} from 'react';
+import React, {Component} from 'react'
 
-import {BrowserRouter, Route, Switch} from 'react-router-dom';
-import styled from 'styled-components';
+import {BrowserRouter, Route, Switch} from 'react-router-dom'
+import styled from 'styled-components'
 
 import Navigation from './components/Navigation'
 import Error from './components/Error'
 import Home from './components/Home'
-import Repo from './components/Repos'
+import Repos from './components/Repos'
 import Commits from './components/Commits'
 
 const Div = styled.div `
@@ -37,9 +37,14 @@ class App extends Component {
                     <Navigation/>
                     <Switch>
                         <Route path="/" component={Home} exact/>
-                        <Route path="/repos" component={Repo} exact/>
-                        <Route path="/repos/:repo/commits" component={Commits}/>
-                        <Route component={Error}/>
+                        <Route
+                            path="/:user/repos"
+                            render={(routeProps) => (<Repos {...routeProps}/>)}
+                            exact/>
+                        <Route
+                            path="/:user/repos/:repo/commits"
+                            render={(routeProps) => (<Commits {...routeProps}/>)}/>
+                        <Route render={(props) => <Error {...props} message={'Path not found'}/>}/>
                     </Switch>
                 </Div>
             </BrowserRouter>
