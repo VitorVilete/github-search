@@ -30,6 +30,11 @@ ul {
 }
 `;
 
+const SearchInput = styled.input `     
+    border-radius: 4px;
+    margin: 10px;
+`;
+
 class Commits extends Component {
     constructor(props) {
         super(props);
@@ -39,10 +44,12 @@ class Commits extends Component {
             repo: getRepo(),
             user: getUser(),
             limit: 20,
-            page:1,
+            page: 1,
             isLoading: false
         }
-        this.handleOnScroll = this.handleOnScroll.bind(this);
+        this.handleOnScroll = this
+            .handleOnScroll
+            .bind(this);
 
         function getUser() {
             return props.user
@@ -106,7 +113,7 @@ class Commits extends Component {
         var scrolledToBottom = Math.ceil(scrollTop + clientHeight) >= scrollHeight;
 
         if (scrolledToBottom && !this.state.search) {
-           this.getCommits()
+            this.getCommits()
         }
     }
 
@@ -146,8 +153,8 @@ class Commits extends Component {
                 ))
                 result = <React.Fragment>
                     <h1>Commits from {repo}</h1>
-                    <label>Search</label>
-                    <input
+                    <label>Search for text inside of the commits</label>
+                    <SearchInput
                         label="Search Commits"
                         icon="search"
                         name="searchname"
