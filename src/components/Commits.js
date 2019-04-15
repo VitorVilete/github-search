@@ -64,10 +64,10 @@ class Commits extends Component {
     }
 
     getCommits() {
-        if (this.state.isLoading) {
+        const {repo, user, limit, page, isLoading} = this.state;
+        if (isLoading) {
             return;
         }
-        const {repo, user, limit, page} = this.state;
         this.setState({
             isLoading: true
         }, () => {
