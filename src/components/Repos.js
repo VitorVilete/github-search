@@ -38,6 +38,11 @@ ul {
 }
 `;
 
+const SearchSelect = styled.select `     
+    border-radius: 4px;
+    margin: 10px;
+`;
+
 const RepoButton = styled.span `
 background:#7700FF;
 font-size: 1em;
@@ -54,7 +59,9 @@ class Repos extends Component {
         this.state = {
             repos: [],
             user: getUser(),
-            isLoading: false
+            isLoading: false,
+            orderKey: 'name',
+            orderBy: 'desc'
         }
 
         function getUser() {
@@ -78,6 +85,41 @@ class Repos extends Component {
                     this.setState({error: err.message, isLoading: false});
                 });
         });
+    }    
+        compareValues(key, order='asc') {
+            console.log(key);
+            return function(a, b) {
+              if(!a.hasOwnProperty(key) || 
+                 !b.hasOwnProperty(key)) {
+                  return 0; 
+              }
+             
+              const varA = (typeof a[key] === 'string') ? 
+                a[key].toUpperCase() : a[key];
+              const varB = (typeof b[key] === 'string') ? 
+                b[key].toUpperCase() : b[key];
+                
+                
+              let comparison = 0;
+              if (varA > varB) {
+                comparison = 1;
+              } else if (varA < varB) {
+                comparison = -1;
+              }
+              return (
+                (order === 'desc') ? 
+                (comparison * -1) : comparison
+              );
+            };
+          }
+
+    handleChange = event => {        
+        if(this.state.repos){
+            this.setState({orderKey: event.target.value}, () => {
+                console.log(`chamando evento change com os argumentos orderBy: ${this.state.orderKey} , repos: ${this.state.repos}`)
+                this.state.repos.sort(this.compareValues(this.state.orderKey))    
+            })
+        }
     }
 
     render() {
@@ -88,8 +130,9 @@ class Repos extends Component {
         if (isLoading) {
             result = <Loader></Loader>;
         } else {
-            if (repos.length > 0) {
-                const repoItems = repos.map(repo => (
+            if (repos.length > 0) {                
+                let repoItems = repos.sort(this.compareValues(this.state.orderKey))
+                repoItems = repoItems.map(repo => (
                     <li key={repo.id}>
                         <h3>{repo.name}</h3>
                         <p>Star Count: {repo.stargazers_count}
@@ -124,6 +167,16 @@ class Repos extends Component {
 
                 result = <React.Fragment>
                     <h1>Repositories from {user}</h1>
+                    <SearchSelect
+                        label="Search Commits"
+                        icon="search"
+                        name="searchname"
+                        onChange={this.handleChange}
+                        value={this.state.orderKey}>
+                        <option value="name">Name</option>
+                        <option value="stargazers_count">Star Count</option>
+                        <option value="language">Language</option>                        
+                    </SearchSelect>
                     <ul>
                         {repoItems}
                     </ul>
